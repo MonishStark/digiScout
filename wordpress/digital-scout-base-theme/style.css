@@ -1,0 +1,135 @@
+/*
+Theme Name: Digital Scout Base Theme
+Theme URI: https://example.com/digital-scout-base-theme
+Author: OpenAI Codex
+Description: A lightweight Gutenberg-friendly base theme for provisioned Digital Scout client sites.
+Version: 0.1.0
+Requires at least: 6.4
+Tested up to: 6.5
+Requires PHP: 8.0
+Text Domain: digital-scout-base-theme
+*/
+
+:root {
+	--ds-background: #07070a;
+	--ds-surface: #111114;
+	--ds-primary: #7c3aed;
+	--ds-accent: #10b981;
+	--ds-text: #f4f4f5;
+	--ds-muted: #a1a1aa;
+	--ds-outline: rgba(255, 255, 255, 0.1);
+	--ds-radius: 28px;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	background:
+		radial-gradient(circle at top, rgba(124, 58, 237, 0.16), transparent 32%),
+		radial-gradient(circle at bottom right, rgba(16, 185, 129, 0.1), transparent 24%),
+		var(--ds-background);
+	color: var(--ds-text);
+	font-family: var(--ds-body-font, "Inter", system-ui, sans-serif);
+}
+
+a {
+	color: inherit;
+}
+
+.site-header,
+.site-footer {
+	width: min(1180px, calc(100% - 32px));
+	margin: 0 auto;
+	padding: 24px 0;
+}
+
+.site-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.site-title {
+	font-family: var(--ds-heading-font, "Inter", system-ui, sans-serif);
+	font-size: 1.4rem;
+	font-weight: 700;
+	letter-spacing: -0.03em;
+	margin: 0;
+}
+
+.site-tagline {
+	color: var(--ds-muted);
+	font-size: 0.92rem;
+}
+
+.site-main {
+	width: min(1180px, calc(100% - 32px));
+	margin: 0 auto;
+	padding: 0 0 80px;
+}
+
+.site-main .wp-block-group,
+.site-main .wp-block-columns,
+.site-main .wp-block-gallery,
+.site-main .wp-block-quote,
+.site-main .wp-block-image {
+	margin-bottom: 24px;
+}
+
+.site-main .wp-block-group,
+.site-main .wp-block-columns,
+.site-main .wp-block-gallery,
+.site-main .wp-block-quote {
+	background: rgba(255, 255, 255, 0.04);
+	border: 1px solid var(--ds-outline);
+	border-radius: var(--ds-radius);
+	padding: 24px;
+	backdrop-filter: blur(18px);
+}
+
+.site-main h1,
+.site-main h2,
+.site-main h3 {
+	font-family: var(--ds-heading-font, "Inter", system-ui, sans-serif);
+	letter-spacing: -0.04em;
+	line-height: 1;
+}
+
+.site-main h1 {
+	font-size: clamp(2.6rem, 8vw, 5rem);
+}
+
+.site-main p,
+.site-main li,
+.site-main cite {
+	color: var(--ds-muted);
+	line-height: 1.7;
+}
+
+.site-main .wp-block-button__link {
+	background: var(--ds-primary);
+	border-radius: 999px;
+	padding: 0.8rem 1.1rem;
+	border: 1px solid var(--ds-outline);
+}
+
+.site-main .wp-block-gallery {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 18px;
+}
+
+.site-main .wp-block-image img {
+	width: 100%;
+	height: auto;
+	border-radius: calc(var(--ds-radius) - 8px);
+}
+
+.site-footer {
+	color: var(--ds-muted);
+	font-size: 0.9rem;
+	border-top: 1px solid var(--ds-outline);
+}

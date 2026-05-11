@@ -1,0 +1,290 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "dev",
+			"type": "shell",
+			"command": "npm run dev",
+			"isBackground": true,
+			"group": "build"
+		},
+		{
+			"label": "free-port-3000",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"$p = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty OwningProcess; if ($p) { Stop-Process -Id $p -Force }"
+			],
+			"group": "build"
+		},
+		{
+			"label": "dev-3000",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"dev"
+			],
+			"isBackground": true,
+			"group": "build"
+		},
+		{
+			"label": "parse-deployments",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"-e",
+				"const fs=require('fs'); const parser=require('@babel/parser'); const code=fs.readFileSync('src/components/DeploymentsView.tsx','utf8'); try { parser.parse(code,{sourceType:'module',plugins:['typescript','jsx']}); console.log('ok'); } catch (error) { console.log(error.message); console.log(JSON.stringify(error.loc)); }"
+			],
+			"group": "build"
+		},
+		{
+			"label": "parse-deployments-2",
+			"type": "shell",
+			"command": "@'\nconst fs=require('fs');\nconst parser=require('@babel/parser');\nconst code=fs.readFileSync('src/components/DeploymentsView.tsx','utf8');\ntry {\n  parser.parse(code,{sourceType:'module',plugins:['typescript','jsx']});\n  console.log('ok');\n} catch (error) {\n  console.log(error.message);\n  console.log(JSON.stringify(error.loc));\n}\n'@ | node -",
+			"group": "build"
+		},
+		{
+			"label": "count-divs",
+			"type": "shell",
+			"command": "@'\nconst fs=require('fs');\nconst code=fs.readFileSync('src/components/DeploymentsView.tsx','utf8');\nconst slice=code.split(/\\r?\\n/).slice(285,628).join('\\n');\nconst open=(slice.match(/<div\\b/g)||[]).length;\nconst close=(slice.match(/<\\/div>/g)||[]).length;\nconsole.log({open,close});\n'@ | node -",
+			"group": "build"
+		},
+		{
+			"label": "div-balance-lines",
+			"type": "shell",
+			"command": "@'\nconst fs=require('fs');\nconst lines=fs.readFileSync('src/components/DeploymentsView.tsx','utf8').split(/\\r?\\n/).slice(285,628);\nlet balance=0;\nlines.forEach((line,idx)=>{\n  const opens=(line.match(/<div\\b/g)||[]).length;\n  const closes=(line.match(/<\\/div>/g)||[]).length;\n  balance += opens - closes;\n  if (opens || closes || idx > 320) {\n    console.log(String(idx+286).padStart(4), balance, line.trim());\n  }\n});\n'@ | node -",
+			"group": "build"
+		},
+		{
+			"label": "tail-lines",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"$path='C:\\Users\\Dhanush\\Downloads\\zip\\src\\components\\DeploymentsView.tsx'; $lines=Get-Content $path; for($i=620;$i -le 635;$i++){ '{0,4}: {1}' -f $i, $lines[$i-1] }"
+			],
+			"group": "build"
+		},
+		{
+			"label": "tail-lines-2",
+			"type": "shell",
+			"command": "$path='C:\\Users\\Dhanush\\Downloads\\zip\\src\\components\\DeploymentsView.tsx'; $lines=Get-Content $path; for($i=620;$i -le 635;$i++){ '{0,4}: {1}' -f $i, $lines[$i-1] }",
+			"group": "build"
+		},
+		{
+			"label": "count-divs-2",
+			"type": "shell",
+			"command": "@'\nconst fs=require('fs');\nconst code=fs.readFileSync('src/components/DeploymentsView.tsx','utf8');\nconst slice=code.split(/\\r?\\n/).slice(285,640).join('\\n');\nconst open=(slice.match(/<div\\b/g)||[]).length;\nconst close=(slice.match(/<\\/div>/g)||[]).length;\nconsole.log({open,close});\n'@ | node -",
+			"group": "build"
+		},
+		{
+			"label": "count-divs-3",
+			"type": "shell",
+			"command": "@'\nconst fs=require('fs');\nconst code=fs.readFileSync('src/components/DeploymentsView.tsx','utf8');\nconst slice=code.split(/\\r?\\n/).slice(285,640).join('\\n');\nconst open=(slice.match(/<div\\b/g)||[]).length;\nconst close=(slice.match(/<\\/div>/g)||[]).length;\nconsole.log({open,close});\n'@ | node -",
+			"group": "build"
+		},
+		{
+			"label": "tail-lines-3",
+			"type": "shell",
+			"command": "$path='C:\\Users\\Dhanush\\Downloads\\zip\\src\\components\\DeploymentsView.tsx'; $lines=Get-Content $path; for($i=620;$i -le 640;$i++){ '{0,4}: {1}' -f $i, $lines[$i-1] }",
+			"group": "build"
+		},
+		{
+			"label": "fix-tail",
+			"type": "shell",
+			"command": "$path='C:\\Users\\Dhanush\\Downloads\\zip\\src\\components\\DeploymentsView.tsx'; $code=Get-Content $path -Raw; $pattern='(?s)\\n\\s*\\)\\}\\s*\\n.*\\z'; $replacement=@'\n\t\t\t\t\t)}\n\t\t\t</div>\n\t\t</div>\n\t);\n}\n'@; $code=[regex]::Replace($code,$pattern,$replacement,1); Set-Content $path $code",
+			"group": "build"
+		},
+		{
+			"label": "tail-lines-4",
+			"type": "shell",
+			"command": "$path='C:\\Users\\Dhanush\\Downloads\\zip\\src\\components\\DeploymentsView.tsx'; $lines=Get-Content $path; for($i=620;$i -le 640;$i++){ '{0,4}: {1}' -f $i, $lines[$i-1] }",
+			"group": "build"
+		},
+		{
+			"label": "build",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "build",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "build",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "build",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "build",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "build",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "build",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"build"
+			],
+			"isBackground": false,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "dev:server:5001",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"dev:server"
+			],
+			"isBackground": true,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "find-5001-owner",
+			"type": "shell",
+			"command": "cmd",
+			"args": [
+				"/c",
+				"netstat -ano | findstr :5001"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "kill-5001",
+			"type": "shell",
+			"command": "cmd",
+			"args": [
+				"/c",
+				"taskkill /PID 26068 /F"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "dev:server:5001",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"dev:server"
+			],
+			"isBackground": true,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "check-5001",
+			"type": "shell",
+			"command": "cmd",
+			"args": [
+				"/c",
+				"netstat -ano | findstr :5001"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "dev:server:5001:retry",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"dev:server"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "dev:frontend",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"dev"
+			],
+			"isBackground": false,
+			"group": "build"
+		}
+	]
+}
