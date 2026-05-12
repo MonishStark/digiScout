@@ -30,9 +30,15 @@ define( 'WP_POST_REVISIONS', 3 );
 define( 'AUTOSAVE_INTERVAL', 300 );
 
 // Debugging (disabled in production, set to true to debug)
-define( 'WP_DEBUG', false );
-define( 'WP_DEBUG_LOG', false );
-define( 'WP_DEBUG_DISPLAY', false );
+if ( ! defined( 'WP_DEBUG' ) ) {
+    define( 'WP_DEBUG', false );
+}
+if ( ! defined( 'WP_DEBUG_LOG' ) ) {
+    define( 'WP_DEBUG_LOG', false );
+}
+if ( ! defined( 'WP_DEBUG_DISPLAY' ) ) {
+    define( 'WP_DEBUG_DISPLAY', false );
+}
 
 // Proxy headers for reverse proxy
 define( 'WP_PROXY_USE_CURL', true );
