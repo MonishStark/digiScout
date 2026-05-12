@@ -42,3 +42,16 @@ if ( isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) && $_SERVER['HTTP_X_FORWARDED_P
     $_SERVER['HTTPS'] = 'on';
     $_SERVER['SERVER_PORT'] = 443;
 }
+
+// Trust forwarded host (including port) to avoid redirects dropping :8443.
+if ( isset( $_SERVER['HTTP_X_FORWARDED_HOST'] ) && ! empty( $_SERVER['HTTP_X_FORWARDED_HOST'] ) ) {
+    $forwarded_host = explode( ',', $_SERVER['HTTP_X_FORWARDED_HOST'] )[0];
+    $_SERVER['HTTP_HOST'] = trim( $forwarded_host );
+}
+
+// Force runtime URL from request host so admin/login works behind SSH tunnels.
+if ( isset( $_SERVER['HTTP_HOST'] ) && ! empty( $_SERVER['HTTP_HOST'] ) ) {
+    $scheme = ( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] === 'on' ) ? 'https' : 'http';
+    define( 'WP_HOME', $scheme . '://' . $_SERVER['HTTP_HOST'] );
+    define( 'WP_SITEURL', $scheme . '://' . $_SERVER['HTTP_HOST'] );
+}
