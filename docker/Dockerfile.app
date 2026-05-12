@@ -32,4 +32,4 @@ EXPOSE 5001
 HEALTHCHECK --interval=10s --timeout=5s --retries=3 \
   CMD curl -f http://localhost:5001/health || exit 1
 
-CMD ["node", "--loader", "tsx", "server.ts"]
+CMD ["node", "--import", "tsx", "server.ts"]
