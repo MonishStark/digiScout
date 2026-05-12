@@ -71,7 +71,7 @@ services:
 
   # WordPress Multisite CMS
   wordpress:
-    image: wordpress:php8.2-fpm
+    image: wordpress:php8.2-apache
     container_name: digitalscout-wordpress
     environment:
       - WORDPRESS_DB_HOST=mariadb
@@ -85,14 +85,14 @@ services:
       - ./wordpress/multisite-mvp-provisioner:/var/www/html/wp-content/plugins/multisite-mvp-provisioner:ro
       - ./docker/wordpress/digital-scout-base-theme:/var/www/html/wp-content/themes/digital-scout-base-theme:ro
     expose:
-      - "9000"
+      - "80"
     depends_on:
       - mariadb
     networks:
       - digitalscout-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/ping || exit 1"]
+      test: ["CMD", "curl", "-f", "http://localhost/ || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
