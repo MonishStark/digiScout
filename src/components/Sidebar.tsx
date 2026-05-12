@@ -9,6 +9,8 @@ import {
 	Activity,
 	SlidersHorizontal,
 	Star,
+	Phone,
+	Mail,
 } from "lucide-react";
 import { useMapsLibrary, useMap } from "@vis.gl/react-google-maps";
 
@@ -30,10 +32,6 @@ interface SidebarProps {
 
 type ContactFilter = "all" | "email" | "phone_only";
 
-const API_URL =
-	((import.meta as any).env?.VITE_API_URL as string | undefined) ||
-	"http://localhost:5001";
-
 async function enrichBusinessContacts(businesses: Business[]) {
 	const enrichedBusinesses = await Promise.all(
 		businesses.map(async (business) => {
@@ -42,7 +40,7 @@ async function enrichBusinessContacts(businesses: Business[]) {
 			}
 
 			try {
-				const response = await fetch(`${API_URL}/api/enrich-business`, {
+				const response = await fetch(`/api/enrich-business`, {
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({
@@ -77,7 +75,7 @@ async function qualifyLeads(
 	city: string,
 	category: string,
 ) {
-	const response = await fetch(`${API_URL}/api/qualify-leads`, {
+	const response = await fetch(`/api/qualify-leads`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify({
@@ -105,8 +103,7 @@ export default function Sidebar({
 	const [category, setCategory] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [contactFilter, setContactFilter] =
-		useState<ContactFilter>("all");
+	const [contactFilter, setContactFilter] = useState<ContactFilter>("all");
 
 	const [activeTab, setActiveTab] = useState("search");
 
@@ -314,45 +311,6 @@ export default function Sidebar({
 				<TabsContent
 					value='results'
 					className='flex-1 mt-0 flex flex-col h-[calc(100vh-170px)]'>
-					{businesses.length > 0 && (
-						<div className='px-4 py-3 border-b border-white/5 space-y-2'>
-							<p className='text-[10px] uppercase tracking-wider text-white/35 font-bold'>
-								Contact Filter
-							</p>
-							<div className='flex flex-wrap gap-2'>
-								<button
-									onClick={() => setContactFilter("all")}
-									className={cn(
-										"px-2.5 py-1 rounded-full text-[10px] font-bold border transition-colors",
-										contactFilter === "all"
-											? "bg-indigo-600 border-indigo-500 text-white"
-											: "bg-white/5 border-white/10 text-white/60 hover:text-white",
-									)}>
-									All ({businesses.length})
-								</button>
-								<button
-									onClick={() => setContactFilter("email")}
-									className={cn(
-										"px-2.5 py-1 rounded-full text-[10px] font-bold border transition-colors",
-										contactFilter === "email"
-											? "bg-indigo-600 border-indigo-500 text-white"
-											: "bg-white/5 border-white/10 text-white/60 hover:text-white",
-									)}>
-									Has Email ({emailLeads.length})
-								</button>
-								<button
-									onClick={() => setContactFilter("phone_only")}
-									className={cn(
-										"px-2.5 py-1 rounded-full text-[10px] font-bold border transition-colors",
-										contactFilter === "phone_only"
-											? "bg-indigo-600 border-indigo-500 text-white"
-											: "bg-white/5 border-white/10 text-white/60 hover:text-white",
-									)}>
-									Phone Only ({phoneOnlyLeads.length})
-								</button>
-							</div>
-						</div>
-					)}
 					{businesses.length === 0 ? (
 						<div className='flex-1 flex flex-col items-center justify-center p-8 text-center text-white/40'>
 							<Building className='w-12 h-12 mb-4 opacity-20' />
@@ -366,7 +324,7 @@ export default function Sidebar({
 					) : (
 						<ScrollArea className='flex-1'>
 							<div className='p-4 space-y-2'>
-								{filteredBusinesses.map((business) => (
+								{businesses.map((business) => (
 									<div
 										key={business.id}
 										className={cn(
@@ -384,19 +342,28 @@ export default function Sidebar({
 										}}>
 										<div className='flex justify-between items-start mb-1'>
 											<h3 className='text-sm font-medium'>{business.name}</h3>
-											<div className='flex gap-1'>
-												<span className='px-1.5 py-0.5 rounded text-[9px] bg-orange-500/10 text-orange-400 border border-orange-500/20 uppercase font-bold'>
-													No Website
-												</span>
-												{business.email ? (
-													<span className='px-1.5 py-0.5 rounded text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase font-bold'>
-														Has Email
+											<div className='flex items-center gap-1.5'>
+												{business.websiteUri && (
+													<span
+														title='Website available'
+														className='inline-flex h-7 w-7 items-center justify-center rounded-full border border-indigo-400/35 bg-indigo-500/12 text-indigo-200'>
+														<Globe className='h-3.5 w-3.5' />
 													</span>
-												) : business.phoneNumber ? (
-													<span className='px-1.5 py-0.5 rounded text-[9px] bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 uppercase font-bold'>
-														Phone Only
+												)}
+												{business.phoneNumber && (
+													<span
+														title='Phone available'
+														className='inline-flex h-7 w-7 items-center justify-center rounded-full border border-cyan-400/35 bg-cyan-500/12 text-cyan-200'>
+														<Phone className='h-3.5 w-3.5' />
 													</span>
-												) : null}
+												)}
+												{business.email && (
+													<span
+														title='Email available'
+														className='inline-flex h-7 w-7 items-center justify-center rounded-full border border-emerald-400/35 bg-emerald-500/12 text-emerald-200'>
+														<Mail className='h-3.5 w-3.5' />
+													</span>
+												)}
 											</div>
 										</div>
 										<div className='flex items-center gap-1 text-[11px] text-white/40'>

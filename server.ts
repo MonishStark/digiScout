@@ -4,6 +4,8 @@ import crypto from "crypto";
 import cors from "cors";
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 import { GoogleGenAI } from "@google/genai";
 import {
 	deleteProvisionedWordPressMultisiteSite,
@@ -19,11 +21,31 @@ import {
 
 dotenv.config({ path: ".env.local" });
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-app.use(cors());
+// Allow requests from localhost and local network only
+const corsOptions = {
+	origin: [
+		"http://localhost:3000",
+		"http://localhost:3001",
+		"http://localhost:3002",
+		"http://192.168.1.37:3000",
+		"http://192.168.1.37:3001",
+		"http://192.168.1.37:3002",
+	],
+	credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: "50mb" }));
+
+// Serve static frontend files from dist/
+app.use(express.static(path.join(__dirname, "dist")));
+
+// No /wp proxy configured for local-only development.
 
 const GENAI_KEY = process.env.GEMINI_API_KEY || process.env.GENAI_API_KEY;
 const genai = GENAI_KEY ? new GoogleGenAI({ apiKey: GENAI_KEY }) : null;
@@ -352,6 +374,39 @@ function parseWebsiteSchemaOutput(
 		};
 
 		merged.theme = sanitizeThemeEnums(merged.theme);
+
+		// Normalize sections to ensure all required fields are present
+		merged.sections = merged.sections.map((section: any, index: number) => {
+			const fallbackSection = fallback.sections[index];
+
+			// For HeroSection, ensure ctaPrimary exists
+			if (section.type === "hero" && fallbackSection?.type === "hero") {
+				return {
+					...section,
+					ctaPrimary: section.ctaPrimary ||
+						(fallbackSection as any).ctaPrimary || {
+							label: "Get Started",
+							href: "#contact",
+						},
+					ctaSecondary:
+						section.ctaSecondary || (fallbackSection as any).ctaSecondary,
+				};
+			}
+
+			// For CtaSection, ensure required fields exist
+			if (section.type === "cta" && fallbackSection?.type === "cta") {
+				return {
+					...section,
+					title: section.title || (fallbackSection as any).title,
+					body: section.body || (fallbackSection as any).body,
+					buttonLabel:
+						section.buttonLabel || (fallbackSection as any).buttonLabel,
+					buttonHref: section.buttonHref || (fallbackSection as any).buttonHref,
+				};
+			}
+
+			return section;
+		});
 
 		return merged;
 	} catch {
@@ -1342,6 +1397,11 @@ app.delete("/api/sites/:siteId", async (req: Request, res: Response) => {
 			error: error instanceof Error ? error.message : "Delete failed",
 		});
 	}
+});
+
+// SPA fallback: serve index.html for any non-API route (enables client-side routing)
+app.get("*", (req, res) => {
+	res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
 app.listen(PORT, () => {

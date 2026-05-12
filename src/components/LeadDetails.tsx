@@ -91,12 +91,14 @@ export default function LeadDetails({
 
 			if (setProjects) {
 				const newId = business.id + "-" + Date.now();
+				const generatedAt = new Date().toISOString();
 				setProjects((prev) => {
 					const filtered = prev.filter((p) => p.businessId !== business.id);
 					return [
 						...filtered,
 						{
 							id: newId,
+							generatedAt,
 							businessId: business.id,
 							businessName: business.name,
 							businessCategory: business.category,
@@ -136,7 +138,7 @@ export default function LeadDetails({
 										...p,
 										provisioningStatus: "provisioning",
 										subsiteCreationStatus: "in_progress",
-								  }
+									}
 								: p,
 						),
 					);
@@ -159,23 +161,18 @@ export default function LeadDetails({
 										wordpressSiteSlug: provisionResult.site?.siteSlug,
 										wordpressSiteUrl: provisionResult.site?.siteUrl,
 										wordpressAdminUrl: provisionResult.site?.adminUrl,
-										wordpressOwnerUsername:
-											provisionResult.site?.ownerUsername,
+										wordpressOwnerUsername: provisionResult.site?.ownerUsername,
 										wordpressOwnerEmail: provisionResult.site?.ownerEmail,
 										wordpressPasswordSetupUrl:
 											provisionResult.site?.passwordSetupUrl,
 										subsiteCreationStatus:
 											provisionResult.subsiteCreationStatus,
-										adminCreationStatus:
-											provisionResult.adminCreationStatus,
+										adminCreationStatus: provisionResult.adminCreationStatus,
 										themeInstallStatus: provisionResult.themeInstallStatus,
 										mediaImportStatus: provisionResult.mediaImportStatus,
-										contentImportStatus:
-											provisionResult.contentImportStatus,
-										homepageSetupStatus:
-											provisionResult.homepageSetupStatus,
-										credentialsStatus:
-											provisionResult.credentialsStatus,
+										contentImportStatus: provisionResult.contentImportStatus,
+										homepageSetupStatus: provisionResult.homepageSetupStatus,
+										credentialsStatus: provisionResult.credentialsStatus,
 										provisioningLogs: provisionResult.logs,
 										provisioningError:
 											provisionResult.error ||
@@ -183,7 +180,7 @@ export default function LeadDetails({
 												? provisionResult.message
 												: undefined),
 										lastProvisionedAt: new Date().toISOString(),
-								  }
+									}
 								: p,
 						),
 					);
@@ -211,7 +208,7 @@ export default function LeadDetails({
 												message: String(provisionErr),
 											},
 										],
-								  }
+									}
 								: p,
 						),
 					);
@@ -342,8 +339,8 @@ export default function LeadDetails({
 							</h3>
 							<p className='text-xs text-white/50 mb-6 max-w-sm mx-auto'>
 								The website for {business.name} is in the leads dashboard with
-								its WordPress Multisite provisioning status, site URL, and
-								admin access details.
+								its WordPress Multisite provisioning status, site URL, and admin
+								access details.
 							</p>
 							<Button
 								onClick={() => setActivePage?.("leads")}

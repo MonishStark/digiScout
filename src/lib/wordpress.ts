@@ -62,24 +62,8 @@ function renderButton(label: string, href: string) {
 }
 
 function renderList(items: string[]) {
-	if (!items.length) {
-		return "";
-	}
+	if (!items.length) return "";
 	return `<!-- wp:list -->\n<ul>\n${items.map((item) => `  <li>${escapeHtml(item)}</li>`).join("\n")}\n</ul>\n<!-- /wp:list -->`;
-}
-
-function renderNavBlocks(schema: WebsiteSchema) {
-	const voice = getSiteVoice(schema);
-	const links = [
-		{ title: "Home", href: "/" },
-		{ title: "About", href: "/about/" },
-		{ title: voice.featuresTitle, href: "/services/" },
-		{ title: voice.galleryTitle, href: "/gallery/" },
-		{ title: voice.faqTitle, href: "/faq/" },
-		{ title: voice.contactTitle, href: "/contact/" },
-	];
-
-	return `<!-- wp:navigation {"layout":{"type":"flex","justifyContent":"center"}} -->\n<nav class="wp-block-navigation">${links.map((link) => `<a class="wp-block-navigation-item__content" href="${link.href}">${escapeHtml(link.title)}</a>`).join("")}</nav>\n<!-- /wp:navigation -->`;
 }
 
 function renderMedia(imageUrl: string, alt: string) {
@@ -162,7 +146,12 @@ function renderHeroSection(schema: WebsiteSchema) {
 	const hero = getSection(schema, "hero");
 	if (!hero) return "";
 
+	const voice = getSiteVoice(schema);
 	const image = hero.media?.src || "";
+	const ctaPrimary = hero.ctaPrimary || {
+		label: voice.ctaButton,
+		href: "#contact",
+	};
 	const subheadline =
 		hero.subheadline &&
 		!/premium|designed to convert|first impression|conversion-ready/i.test(
@@ -170,23 +159,24 @@ function renderHeroSection(schema: WebsiteSchema) {
 		)
 			? hero.subheadline
 			: `${schema.brand.businessName} deserves a more distinctive digital presence.`;
-	return `<!-- wp:group {"layout":{"type":"constrained"}} -->\n<div class="wp-block-group">\n  ${renderHeading(hero.headline, 1)}\n  ${renderParagraph(subheadline)}\n  ${renderButton(hero.ctaPrimary.label, hero.ctaPrimary.href)}\n  ${image ? renderMedia(image, hero.media?.alt || schema.brand.businessName) : ""}\n</div>\n<!-- /wp:group -->`;
+
+	return `<!-- wp:group {"layout":{"type":"constrained"}} -->\n<div class="wp-block-group">\n  ${renderHeading(hero.headline, 1)}\n  ${renderParagraph(subheadline)}\n  ${renderButton(ctaPrimary.label, ctaPrimary.href)}\n  ${image ? renderMedia(image, hero.media?.alt || schema.brand.businessName) : ""}\n</div>\n<!-- /wp:group -->`;
 }
 
 function renderFeaturesSection(schema: WebsiteSchema) {
 	const features = getSection(schema, "features");
-	if (!features || !features.items.length) return "";
+	const items = Array.isArray(features?.items) ? features.items : [];
+	if (!items.length) return "";
 	const voice = getSiteVoice(schema);
-
-	return `<!-- wp:group {"layout":{"type":"constrained"}} -->\n<div class="wp-block-group">\n  ${renderHeading(voice.featuresTitle, 2)}\n  ${renderList(features.items.map((item) => `${item.title}: ${item.description}`))}\n</div>\n<!-- /wp:group -->`;
+	return `<!-- wp:group {"layout":{"type":"constrained"}} -->\n<div class="wp-block-group">\n  ${renderHeading(voice.featuresTitle, 2)}\n  ${renderList(items.map((item) => `${item.title}: ${item.description}`))}\n</div>\n<!-- /wp:group -->`;
 }
 
 function renderGallerySection(schema: WebsiteSchema) {
 	const gallery = getSection(schema, "gallery");
-	if (!gallery || !gallery.items.length) return "";
+	const items = Array.isArray(gallery?.items) ? gallery.items : [];
+	if (!items.length) return "";
 	const voice = getSiteVoice(schema);
-
-	return `<!-- wp:group {"layout":{"type":"constrained"}} -->\n<div class="wp-block-group">\n  ${renderHeading(voice.galleryTitle, 2)}\n  <!-- wp:gallery {"linkTo":"none"} -->\n<figure class="wp-block-gallery has-nested-images columns-3 is-cropped">\n${gallery.items
+	return `<!-- wp:group {"layout":{"type":"constrained"}} -->\n<div class="wp-block-group">\n  ${renderHeading(voice.galleryTitle, 2)}\n  <!-- wp:gallery {"linkTo":"none"} -->\n<figure class="wp-block-gallery has-nested-images columns-3 is-cropped">\n${items
 		.map(
 			(item) =>
 				`  <figure class="wp-block-image size-large"><img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.alt)}" /></figure>`,
@@ -196,10 +186,10 @@ function renderGallerySection(schema: WebsiteSchema) {
 
 function renderTestimonialsSection(schema: WebsiteSchema) {
 	const testimonials = getSection(schema, "testimonials");
-	if (!testimonials || !testimonials.items.length) return "";
+	const items = Array.isArray(testimonials?.items) ? testimonials.items : [];
+	if (!items.length) return "";
 	const voice = getSiteVoice(schema);
-
-	return `<!-- wp:group {"layout":{"type":"constrained"}} -->\n<div class="wp-block-group">\n  ${renderHeading(voice.testimonialsTitle, 2)}\n  ${testimonials.items
+	return `<!-- wp:group {"layout":{"type":"constrained"}} -->\n<div class="wp-block-group">\n  ${renderHeading(voice.testimonialsTitle, 2)}\n  ${items
 		.map(
 			(item) =>
 				`<!-- wp:quote -->\n<blockquote class="wp-block-quote"><p>${escapeHtml(item.quote)}</p><cite>${escapeHtml(item.author)}${item.role ? `, ${escapeHtml(item.role)}` : ""}</cite></blockquote>\n<!-- /wp:quote -->`,
@@ -209,10 +199,10 @@ function renderTestimonialsSection(schema: WebsiteSchema) {
 
 function renderFaqSection(schema: WebsiteSchema) {
 	const faq = getSection(schema, "faq");
-	if (!faq || !faq.items.length) return "";
+	const items = Array.isArray(faq?.items) ? faq.items : [];
+	if (!items.length) return "";
 	const voice = getSiteVoice(schema);
-
-	return `<!-- wp:group {"layout":{"type":"constrained"}} -->\n<div class="wp-block-group">\n  ${renderHeading(voice.faqTitle, 2)}\n  ${faq.items
+	return `<!-- wp:group {"layout":{"type":"constrained"}} -->\n<div class="wp-block-group">\n  ${renderHeading(voice.faqTitle, 2)}\n  ${items
 		.map(
 			(item) =>
 				`<!-- wp:details -->\n<details class="wp-block-details"><summary>${escapeHtml(item.question)}</summary><p>${escapeHtml(item.answer)}</p></details>\n<!-- /wp:details -->`,
@@ -222,13 +212,27 @@ function renderFaqSection(schema: WebsiteSchema) {
 
 function renderContactSection(schema: WebsiteSchema) {
 	const voice = getSiteVoice(schema);
-	return `<!-- wp:group {"layout":{"type":"constrained"}} -->\n<div class="wp-block-group" id="contact">\n  ${renderHeading(voice.contactTitle, 2)}\n  ${renderParagraph(schema.brand.address || "")}\n  ${schema.brand.phone ? renderParagraph(`Phone: ${schema.brand.phone}`) : ""}\n  ${schema.brand.email ? renderParagraph(`Email: ${schema.brand.email}`) : ""}\n  ${schema.brand.email ? renderButton(voice.ctaButton, `mailto:${schema.brand.email}`) : ""}\n</div>\n<!-- /wp:group -->`;
+	return `<!-- wp:group {"layout":{"type":"constrained"}} -->\n<div class="wp-block-group" id="contact">\n  ${renderHeading(voice.contactTitle, 2)}\n  ${schema.brand.address ? renderParagraph(schema.brand.address) : ""}\n  ${schema.brand.phone ? renderParagraph(`Phone: ${schema.brand.phone}`) : ""}\n  ${schema.brand.email ? renderParagraph(`Email: ${schema.brand.email}`) : ""}\n  ${schema.brand.email ? renderButton(voice.ctaButton, `mailto:${schema.brand.email}`) : ""}\n</div>\n<!-- /wp:group -->`;
 }
 
 function renderCtaSection(schema: WebsiteSchema) {
 	const cta = getSection(schema, "cta");
 	if (!cta) return "";
 	return `<!-- wp:group {"layout":{"type":"constrained"}} -->\n<div class="wp-block-group">\n  ${renderHeading(cta.title, 2)}\n  ${renderParagraph(cta.body)}\n  ${renderButton(cta.buttonLabel, cta.buttonHref)}\n</div>\n<!-- /wp:group -->`;
+}
+
+function renderNavBlocks(schema: WebsiteSchema) {
+	const voice = getSiteVoice(schema);
+	const links = [
+		{ title: "Home", href: "/" },
+		{ title: "About", href: "/about/" },
+		{ title: voice.featuresTitle, href: "/services/" },
+		{ title: voice.galleryTitle, href: "/gallery/" },
+		{ title: voice.faqTitle, href: "/faq/" },
+		{ title: voice.contactTitle, href: "/contact/" },
+	];
+
+	return `<!-- wp:navigation {"layout":{"type":"flex","justifyContent":"center"}} -->\n<nav class="wp-block-navigation">${links.map((link) => `<a class="wp-block-navigation-item__content" href="${link.href}">${escapeHtml(link.title)}</a>`).join("")}</nav>\n<!-- /wp:navigation -->`;
 }
 
 function buildHomePageBlocks(schema: WebsiteSchema) {
@@ -314,10 +318,7 @@ function buildContactPageBlocks(schema: WebsiteSchema) {
 }
 
 export function schemaToGutenbergBlocks(schema: WebsiteSchema) {
-	if (!schema) {
-		return "";
-	}
-
+	if (!schema) return "";
 	return buildHomePageBlocks(schema);
 }
 
@@ -335,8 +336,8 @@ export function collectWordPressMediaAssets(
 			});
 		}
 
-		if (section.type === "gallery") {
-			for (const [index, item] of (section.items || []).entries()) {
+		if (section.type === "gallery" && Array.isArray(section.items)) {
+			for (const [index, item] of section.items.entries()) {
 				assets.push({
 					sourceUrl: item.src,
 					alt: item.alt || `${schema.brand.businessName} gallery ${index + 1}`,
@@ -348,9 +349,7 @@ export function collectWordPressMediaAssets(
 
 	const unique = new Map<string, WordPressMediaAsset>();
 	for (const asset of assets) {
-		if (asset.sourceUrl) {
-			unique.set(asset.sourceUrl, asset);
-		}
+		if (asset.sourceUrl) unique.set(asset.sourceUrl, asset);
 	}
 
 	return Array.from(unique.values());
@@ -359,18 +358,14 @@ export function collectWordPressMediaAssets(
 export function buildWordPressSitePages(
 	schema: WebsiteSchema,
 ): WordPressSitePageDraft[] {
-	const pages: WordPressSitePageDraft[] = [
+	return [
 		{
 			title: schema.brand.businessName || "Home",
 			slug: "home",
 			content: buildHomePageBlocks(schema),
 			isHomepage: true,
 		},
-		{
-			title: "About",
-			slug: "about",
-			content: buildAboutPageBlocks(schema),
-		},
+		{ title: "About", slug: "about", content: buildAboutPageBlocks(schema) },
 		{
 			title: "Services",
 			slug: "services",
@@ -381,29 +376,19 @@ export function buildWordPressSitePages(
 			slug: "gallery",
 			content: buildGalleryPageBlocks(schema),
 		},
-		{
-			title: "FAQ",
-			slug: "faq",
-			content: buildFaqPageBlocks(schema),
-		},
+		{ title: "FAQ", slug: "faq", content: buildFaqPageBlocks(schema) },
 		{
 			title: "Contact",
 			slug: "contact",
 			content: buildContactPageBlocks(schema),
 		},
 	];
-
-	return pages;
 }
 
 export function buildWordPressProvisioningPlan(
 	schema: WebsiteSchema,
 	business: Business,
-	options?: {
-		ownerEmail?: string;
-		ownerUsername?: string;
-		baseTheme?: string;
-	},
+	options?: { ownerEmail?: string; ownerUsername?: string; baseTheme?: string },
 ): WordPressProvisioningPlan {
 	const siteSlug = slugify(schema.meta?.slug || business.name || "client-site");
 	const emailSlug = slugify(

@@ -2,13 +2,9 @@
 
 import { Business, WebsiteSchema } from "../types";
 
-const API_URL =
-	((import.meta as any).env?.VITE_API_URL as string | undefined) ||
-	"http://localhost:5001";
-
 export async function generateWebsite(business: Business) {
 	try {
-		const resp = await fetch(`${API_URL}/api/generate`, {
+		const resp = await fetch(`/api/generate`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(business),

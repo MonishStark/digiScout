@@ -29,7 +29,12 @@ export interface WebsiteTheme {
 	name: string;
 	style: string;
 	radius: string;
-	layout?: "editorial" | "immersive" | "minimal" | "gallery-forward" | "split-screen";
+	layout?:
+		| "editorial"
+		| "immersive"
+		| "minimal"
+		| "gallery-forward"
+		| "split-screen";
 	buttonStyle?: "pill" | "sharp" | "ghost";
 	surfaceStyle?: "glass" | "solid" | "outline";
 	mediaShape?: "rounded" | "arched" | "portrait" | "square";
@@ -249,6 +254,7 @@ export interface WordPressProvisioningState {
 
 export interface WebsiteProject extends WordPressProvisioningState {
 	id: string;
+	generatedAt?: string;
 	businessId: string;
 	businessName: string;
 	businessCategory?: string;

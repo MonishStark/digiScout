@@ -14,7 +14,6 @@ import {
 	BriefcaseBusiness,
 	Phone,
 	ShieldCheck,
-	Clock3,
 	Database,
 	KeyRound,
 	ExternalLink,
@@ -148,23 +147,34 @@ export default function DeploymentsView({
 		setOutreachModalOpen(true);
 	};
 
+	const getOutreachLink = (project: WebsiteProject) =>
+		project.deployedUrl || project.wordpressSiteUrl || "";
+
+	const buildOutreachMessage = (project: WebsiteProject, message: string) => {
+		const trimmedMessage = message.trim();
+		const deployLink = getOutreachLink(project);
+
+		if (!deployLink) {
+			return trimmedMessage;
+		}
+
+		return `${trimmedMessage}\n\nWebsite: ${deployLink}`;
+	};
+
 	const sendOutreachMessage = async () => {
 		const project = projects.find((item) => item.id === outreachProjectId);
 		if (!project || !project.phoneNumber) return;
 
 		setSendingId(outreachProjectId);
-		const API_URL =
-			((import.meta as any).env?.VITE_API_URL as string | undefined) ||
-			"http://localhost:5001";
-
 		try {
-			const response = await fetch(`${API_URL}/api/outreach/send`, {
+			const messageWithLink = buildOutreachMessage(project, outreachMessage);
+			const response = await fetch(`/api/outreach/send`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
 					businessName: project.businessName,
 					phoneNumber: project.phoneNumber,
-					message: outreachMessage,
+					message: messageWithLink,
 					preferredChannel: outreachChannel,
 				}),
 			});
@@ -218,9 +228,11 @@ export default function DeploymentsView({
 	};
 
 	const getGeneratedDate = (projectId: string) => {
-		const [, timestamp] = projectId.split("-");
+		const project = projects.find((item) => item.id === projectId);
+		const timestamp = project?.generatedAt;
 		if (!timestamp) return "Recently";
-		const date = new Date(parseInt(timestamp));
+		const date = new Date(timestamp);
+		if (Number.isNaN(date.getTime())) return "Recently";
 		return `Generated on ${date.toLocaleDateString("en-US", {
 			month: "short",
 			day: "numeric",
@@ -316,6 +328,17 @@ export default function DeploymentsView({
 		return "N/A Rating";
 	};
 
+	const buildPreviewSrcDoc = (websiteContent: string) => {
+		if (websiteContent.includes("</head>")) {
+			return websiteContent.replace(
+				"</head>",
+				"<style>html,body{overflow:hidden!important;scrollbar-width:none;}body::-webkit-scrollbar{display:none;}</style></head>",
+			);
+		}
+
+		return `${websiteContent}<style>html,body{overflow:hidden!important;scrollbar-width:none;}body::-webkit-scrollbar{display:none;}</style>`;
+	};
+
 	if (projects.length === 0) {
 		return (
 			<div className='flex h-full flex-col items-center justify-center p-8 text-center text-white/40'>
@@ -331,22 +354,13 @@ export default function DeploymentsView({
 	return (
 		<div className='h-full min-h-0 w-full overflow-y-auto px-6 pb-32 lg:px-8'>
 			<div className='mx-auto flex w-full max-w-[1600px] flex-col gap-6'>
-				<div className='flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between'>
+				<div className='flex flex-col gap-3'>
 					<div className='space-y-2'>
 						<p className='text-xs font-semibold uppercase tracking-[0.24em] text-violet-300/80'>
 							Lead Management
 						</p>
-						<h2 className='text-3xl font-semibold tracking-tight text-white sm:text-4xl'>
-							Leads List
-						</h2>
-						<p className='max-w-2xl text-sm text-white/55 sm:text-base'>
-							Track generated previews, WordPress Multisite provisioning, and
-							optional Netlify deployments in one place.
-						</p>
-					</div>
-					<div className='flex items-center gap-3 self-start rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs text-white/55 shadow-[0_12px_40px_rgba(0,0,0,0.22)] backdrop-blur-xl'>
-						<Clock3 className='h-4 w-4 text-violet-300' />
-						Updated live from your latest generated leads
+						<h2 className='text-3xl font-semibold tracking-tight text-white sm:text-4xl'></h2>
+						<p className='max-w-2xl text-sm text-white/55 sm:text-base'></p>
 					</div>
 				</div>
 
@@ -371,7 +385,7 @@ export default function DeploymentsView({
 							tone: "from-emerald-500/20 via-white/5 to-transparent",
 						},
 						{
-							label: "Emails Sent",
+							label: "Outreach Sent",
 							value: emailsSent,
 							icon: Mail,
 							tone: "from-amber-500/20 via-white/5 to-transparent",
@@ -411,9 +425,10 @@ export default function DeploymentsView({
 								<div className='relative flex flex-col gap-5 xl:flex-row xl:items-stretch xl:gap-6'>
 									<div className='relative h-[200px] w-full overflow-hidden rounded-[24px] border border-white/10 bg-[#080815] shadow-[0_20px_50px_rgba(0,0,0,0.34)] sm:h-[220px] xl:h-auto xl:w-[320px] xl:flex-shrink-0'>
 										<iframe
-											srcDoc={project.websiteContent}
+											srcDoc={buildPreviewSrcDoc(project.websiteContent)}
 											title={`${project.businessName} preview`}
 											sandbox='allow-scripts'
+											scrolling='no'
 											className='h-full w-full border-0 transition-transform duration-700 ease-out group-hover:scale-[1.04]'
 										/>
 										<div className='absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent' />
@@ -604,23 +619,6 @@ export default function DeploymentsView({
 													<Mail className='h-3.5 w-3.5 text-amber-300' />
 													{project.email || "No email listed"}
 												</span>
-												{project.wordpressOwnerUsername && (
-													<span className='inline-flex items-center gap-1.5 rounded-full border border-cyan-400/20 bg-cyan-500/10 px-3 py-1.5 text-cyan-100'>
-														<KeyRound className='h-3.5 w-3.5 text-cyan-300' />
-														{project.wordpressOwnerUsername}
-													</span>
-												)}
-											</div>
-											<div className='text-xs text-white/35'>
-												{project.provisioningStatus === "ready"
-													? "Dedicated WordPress CMS ready"
-													: project.provisioningStatus === "provisioning"
-														? "Provisioning WordPress site"
-														: isLive
-															? "Deployment is live"
-															: project.isDeploying
-																? "Deploying now"
-																: "Ready to deploy"}
 											</div>
 										</div>
 									</div>
@@ -658,6 +656,14 @@ export default function DeploymentsView({
 									{projects.find((p) => p.id === outreachProjectId)
 										?.phoneNumber || "No phone"}
 								</p>
+								{projects.find((p) => p.id === outreachProjectId) && (
+									<p className='mt-2 break-all text-xs text-emerald-300/90'>
+										Will attach:{" "}
+										{getOutreachLink(
+											projects.find((p) => p.id === outreachProjectId)!,
+										) || "No deploy link available"}
+									</p>
+								)}
 							</div>
 
 							{/* Channel Selection */}
@@ -700,7 +706,14 @@ export default function DeploymentsView({
 									placeholder='Enter your outreach message...'
 								/>
 								<p className='text-xs text-white/40 mt-1'>
-									{outreachMessage.length}/160 characters
+									{
+										buildOutreachMessage(
+											projects.find((p) => p.id === outreachProjectId) ||
+												projects[0],
+											outreachMessage,
+										).length
+									}
+									/160 characters
 								</p>
 							</div>
 

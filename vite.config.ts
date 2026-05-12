@@ -27,11 +27,24 @@ export default defineConfig(({ mode }) => {
 		},
 		server: {
 			// HMR is disabled in AI Studio via DISABLE_HMR env var.
-			// Do not modifyâfile watching is disabled to prevent flickering during agent edits.
+			// Do not modify—file watching is disabled to prevent flickering during agent edits.
 			hmr: process.env.DISABLE_HMR !== "true",
+			// Allow external hosts (useful for ngrok/public tunnels during development).
+			// This is a dev-only relaxation; do not enable in production builds.
+			// Allow any host for development (useful for dynamic tunnels like ngrok).
+			// Dev-only: do NOT enable in production.
+			allowedHosts: "all",
+			// Proxy all /api/* requests to the backend on port 5001
+			proxy: {
+				"/api": {
+					target: "http://localhost:5001",
+					changeOrigin: true,
+					rewrite: (path) => path,
+				},
+			},
 		},
 		env: {
-			VITE_API_URL: env.VITE_API_URL || "http://localhost:3001",
+			VITE_API_URL: env.VITE_API_URL || "",
 		},
 	};
 });

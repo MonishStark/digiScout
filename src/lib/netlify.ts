@@ -1,9 +1,5 @@
 /** @format */
 
-const API_URL =
-	((import.meta as any).env?.VITE_API_URL as string | undefined) ||
-	"http://localhost:5001";
-
 export interface NetlifyDeployResult {
 	deployedUrl: string;
 	siteId: string;
@@ -15,9 +11,9 @@ export async function deploySiteToNetlify(
 	businessName: string,
 ): Promise<NetlifyDeployResult> {
 	try {
-		console.log(`Calling backend API at: ${API_URL}/api/deploy`);
+		console.log(`Calling backend API at: /api/deploy`);
 
-		const response = await fetch(`${API_URL}/api/deploy`, {
+		const response = await fetch(`/api/deploy`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -56,7 +52,7 @@ export async function deploySiteToNetlify(
 }
 
 export async function deleteDeployedSite(siteId: string): Promise<void> {
-	const response = await fetch(`${API_URL}/api/sites/${siteId}`, {
+	const response = await fetch(`/api/sites/${siteId}`, {
 		method: "DELETE",
 	});
 

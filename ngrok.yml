@@ -1,0 +1,10 @@
+# @format
+
+version: 3
+tunnels:
+  frontend:
+    proto: http
+    addr: localhost:3002
+  backend:
+    proto: http
+    addr: localhost:5001

@@ -10,10 +10,6 @@ import {
 } from "../types";
 import { buildWordPressProvisioningPlan } from "./wordpress";
 
-const API_URL =
-	((import.meta as any).env?.VITE_API_URL as string | undefined) ||
-	"http://localhost:5001";
-
 export interface WordPressProvisionSiteRequest {
 	projectId: string;
 	business: Business;
@@ -52,7 +48,7 @@ export async function provisionWordPressSite(
 		},
 	);
 
-	const response = await fetch(`${API_URL}/api/wordpress/provision-site`, {
+	const response = await fetch(`/api/wordpress/provision-site`, {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
@@ -91,7 +87,7 @@ export async function provisionWordPressSite(
 export async function deleteProvisionedWordPressSite(
 	siteId: number | string,
 ): Promise<void> {
-	const response = await fetch(`${API_URL}/api/wordpress/site/${siteId}`, {
+	const response = await fetch(`/api/wordpress/site/${siteId}`, {
 		method: "DELETE",
 	});
 

@@ -122,12 +122,6 @@ export default function App() {
 							</button>
 						</div>
 						<div className='flex items-center gap-4'>
-							<div className='flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10'>
-								<div className='w-2 h-2 rounded-full bg-emerald-400 animate-pulse'></div>
-								<span className='text-xs text-white/70'>
-									Gemini 3.1 Pro Active
-								</span>
-							</div>
 							<div className='w-8 h-8 rounded-full bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center'>
 								<span className='text-[10px] font-bold'>DS</span>
 							</div>
