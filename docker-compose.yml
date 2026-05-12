@@ -1,7 +1,5 @@
 # @format
 
-version: "3.8"
-
 services:
   # Nginx reverse proxy and static frontend server
   nginx:
@@ -92,7 +90,11 @@ services:
       - digitalscout-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/ || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "php -r 'exit(@fsockopen(\"127.0.0.1\", 80) ? 0 : 1);'",
+        ]
       interval: 10s
       timeout: 5s
       retries: 3
