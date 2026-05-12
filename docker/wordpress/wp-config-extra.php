@@ -56,8 +56,17 @@ if ( isset( $_SERVER['HTTP_X_FORWARDED_HOST'] ) && ! empty( $_SERVER['HTTP_X_FOR
 }
 
 // Force runtime URL from request host so admin/login works behind SSH tunnels.
+// Fallback to environment variable or localhost for CLI operations.
+$site_url = 'http://localhost';
 if ( isset( $_SERVER['HTTP_HOST'] ) && ! empty( $_SERVER['HTTP_HOST'] ) ) {
     $scheme = ( isset( $_SERVER['HTTPS'] ) && $_SERVER['HTTPS'] === 'on' ) ? 'https' : 'http';
-    define( 'WP_HOME', $scheme . '://' . $_SERVER['HTTP_HOST'] );
-    define( 'WP_SITEURL', $scheme . '://' . $_SERVER['HTTP_HOST'] );
+    $site_url = $scheme . '://' . $_SERVER['HTTP_HOST'];
+} elseif ( ! empty( getenv( 'WORDPRESS_MULTISITE_NETWORK_URL' ) ) ) {
+    $site_url = getenv( 'WORDPRESS_MULTISITE_NETWORK_URL' );
+}
+if ( ! defined( 'WP_HOME' ) ) {
+    define( 'WP_HOME', $site_url );
+}
+if ( ! defined( 'WP_SITEURL' ) ) {
+    define( 'WP_SITEURL', $site_url );
 }
